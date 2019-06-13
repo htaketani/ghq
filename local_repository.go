@@ -203,7 +203,14 @@ func walkLocalRepositories(callback func(*LocalRepository)) error {
 		return err
 	}
 	for _, root := range roots {
+		rootParts := strings.Split(root, string(filepath.Separator))
+		rootPartsLen := len(rootParts)
 		if err := filepath.Walk(root, func(fpath string, fi os.FileInfo, err error) error {
+			// max depth
+			pathParts := strings.Split(fpath, string(filepath.Separator))
+			if len(pathParts)-rootPartsLen > 3 {
+				return filepath.SkipDir
+			}
 			isSymlink := false
 			if err != nil || fi == nil {
 				if err == nil || os.IsNotExist(err) {
